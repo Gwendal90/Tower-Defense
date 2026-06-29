@@ -1,19 +1,20 @@
-using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    PlayerInput playerInput;
-    InputAction moveAction;
+    private PlayerInput playerInput;
+    private InputAction moveAction;
+    private Transform cam;
 
-    [SerializeField] float speed = 5;
+    [SerializeField] private float speed = 5f;
 
     void Start()
     {
         playerInput = GetComponent<PlayerInput>();
         moveAction = playerInput.actions.FindAction("Move");
+
+        cam = Camera.main.transform;
     }
 
     void Update()
@@ -22,25 +23,22 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void MovePlayer()
-{
-    Vector2 input = moveAction.ReadValue<Vector2>();
+    {
+        Vector2 input = moveAction.ReadValue<Vector2>();
 
-    // Get camera reference
-    Transform cam = Camera.main.transform;
+        if (cam == null) return;
 
-    // Camera forward/right, flattened (ignore vertical tilt)
-    Vector3 forward = cam.forward;
-    Vector3 right = cam.right;
+        Vector3 forward = cam.forward;
+        Vector3 right = cam.right;
 
-    forward.y = 0;
-    right.y = 0;
+        forward.y = 0f;
+        right.y = 0f;
 
-    forward.Normalize();
-    right.Normalize();
+        forward.Normalize();
+        right.Normalize();
 
-    // Convert input into world direction relative to camera
-    Vector3 moveDir = forward * input.y + right * input.x;
+        Vector3 moveDir = forward * input.y + right * input.x;
 
-    transform.position += moveDir * speed * Time.deltaTime;
-}
+        transform.position += moveDir * speed * Time.deltaTime;
+    }
 }
