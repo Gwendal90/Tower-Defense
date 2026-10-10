@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     private PlayerInput playerInput;
     private InputAction moveAction;
@@ -9,8 +10,15 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] private float speed = 5f;
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
+        // Only the owner controls this player
+        if (!IsOwner)
+        {
+            enabled = false;
+            return;
+        }
+
         playerInput = GetComponent<PlayerInput>();
         moveAction = playerInput.actions.FindAction("Move");
 
@@ -26,7 +34,8 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
 
-        if (cam == null) return;
+        if (cam == null)
+            return;
 
         Vector3 forward = cam.forward;
         Vector3 right = cam.right;
